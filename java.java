@@ -1,38 +1,39 @@
-// Install the Authy Java helper library from github.com/twilio/authy-java
+// Install the Java helper library from twilio.com/docs/java/install
 
-import com.authy.AuthyApiClient;
-import com.authy.api.*;
+import com.twilio.Twilio;
+import com.twilio.rest.verify.v2.service.Verification;
 
 public class Example {
-    // Your API key from twilio.com/console/authy/applications
-    // DANGER! This is insecure. See http://twil.io/secure
-    public static final String API_KEY = "your_api_key";
-    public static final String AUTHY_ID = "user's authy id";
+    // Find your Account Sid and Token at twilio.com/console
+    // and set the environment variables. See http://twil.io/secure
+    public static final String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
+    public static final String AUTH_TOKEN = System.getenv("TWILIO_AUTH_TOKEN");
+
+    // Create a Verify Service in the Console: https://www.twilio.com/console/verify/services
+    public static final String VERIFY_SERVICE_SID = System.getenv("VERIFY_SERVICE_SID");
 
     public static void main( String[] args ) throws Exception
     {
-        AuthyApiClient client = new AuthyApiClient(API_KEY);
+        // Use this instead of the Authy ID.
+        // Must be in E.164 format: https://www.twilio.com/docs/glossary/what-e164
+        String toNumber = "+15017122661";
+        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
 
         // Send verification
-        Users users = client.getUsers();
-        Hash response = users.requestSms(AUTHY_ID);
+        Verification verification = Verification.creator(
+                VERIFY_SERVICE_SID,
+                toNumber,
+                "sms")
+                .create();
 
-        if (response.isOk()) {
-            System.out.println(response.getMessage());
-        } else {
-            System.out.println(response.getError());
-        }
+        System.out.println(verification.getSid());
 
         // Check verification
-        Tokens tokens = client.getTokens();
-        Token response = tokens.verify(AUTHY_ID, "1297431");
+        VerificationCheck verificationCheck = VerificationCheck.creator(
+                VERIFY_SERVICE_SID,
+                "1234")
+            .setTo(toNumber).create();
 
-        if (response.isOk()) {
-            // Success
-            System.out.println(response.toMap());
-        } else {
-            // Invalid token
-            System.out.println(response.getError());
-        }
+        System.out.println(verificationCheck.getStatus());
     }
 }
