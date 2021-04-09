@@ -6,6 +6,6 @@ require 'authy'
 Authy.api_key = ENV['AUTHY_API_KEY']
 Authy.api_uri = 'https://api.authy.com'
 
-response = Authy::API.request_sms(:id => ENV['AUTHY_ID'])
+verification = Authy::API.request_sms(:id => ENV['AUTHY_ID'])
 
-puts response.message
+puts verification.message
