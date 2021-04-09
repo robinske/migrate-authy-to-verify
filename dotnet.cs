@@ -1,41 +1,42 @@
 using System;
-using System.Net.Http;
-using System.Collections.Generic;
+using Twilio;
+using Twilio.Rest.Verify.V2.Service;
 
 
 class Program
 {
     static void Main(string[] args)
     {
-        // Your API key from twilio.com/console/authy/applications
-        // DANGER! This is insecure. See http://twil.io/secure
-        var AuthyAPIKey = "your_api_key";
-        var AuthyId = "user's authy id";
+        // Find your Account Sid and Token at twilio.com/console
+        // and set the environment variables. See http://twil.io/secure
+        string accountSid = Environment.GetEnvironmentVariable("TWILIO_ACCOUNT_SID");
+        string authToken = Environment.GetEnvironmentVariable("TWILIO_AUTH_TOKEN");
+
+        // Create a Verify Service in the Console: https://www.twilio.com/console/verify/services
+        string verifyServiceSid = Environment.GetEnvironmentVariable("VERIFY_SERVICE_SID");
+
+        // Use this instead of the Authy ID.
+        // Must be in E.164 format: https://www.twilio.com/docs/glossary/what-e164
+        string toNumber = "+15017122661";
+
+        TwilioClient.Init(accountSid, authToken);
 
         // Send verification
-        using (var client = new HttpClient())
-        {
-            client.DefaultRequestHeaders.Add("X-Authy-API-Key", AuthyAPIKey);
+        var verification = VerificationResource.Create(
+            to: toNumber,
+            channel: "sms",
+            pathServiceSid: verifyServiceSid
+        );
 
-            HttpResponseMessage response = client.GetAsync(
-                $"https://api.authy.com/protected/json/sms/{AuthyId}").Result;
-
-            HttpContent responseContent = response.Content;
-            Console.WriteLine(responseContent.ReadAsStringAsync().Result);
-        }
+        Console.WriteLine(verification.Sid);
 
         // Check verification
-        using (var client = new HttpClient())
-        {
-            client.DefaultRequestHeaders.Add("X-Authy-API-Key", AuthyAPIKey);
+        var verificationCheck = VerificationCheckResource.Create(
+            to: toNumber,
+            code: "1234",
+            pathServiceSid: verifyServiceSid
+        );
 
-            var token = 1234567;
-
-            HttpResponseMessage response = client.GetAsync(
-                $"https://api.authy.com/protected/json/verify/{token}/{AuthyId}").Result;
-
-            HttpContent responseContent = response.Content;
-            Console.WriteLine(responseContent.ReadAsStringAsync().Result);
-        }
+        Console.WriteLine(verificationCheck.Status);
     }
 }
