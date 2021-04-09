@@ -1,0 +1,11 @@
+.env
+
+# node
+node_modules/
+package-lock.json
+
+# php
+composer.json
+composer.lock
+vendor/
+
