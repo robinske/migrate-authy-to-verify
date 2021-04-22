@@ -4,6 +4,14 @@
 // DANGER! This is insecure. See http://twil.io/secure
 var authy = require("authy")(process.env.AUTHY_API_KEY);
 
-authy.request_sms(process.env.AUTHY_ID, function (err, res) {
-  console.log(res.message);
-});
+function send() {
+  authy.request_sms(process.env.AUTHY_ID, function (err, res) {
+    console.log(res.message);
+  });
+}
+
+function check(token) {
+  authy.verify(process.env.AUTHY_ID, (token = token), function (err, res) {
+    console.log(res.message);
+  });
+}

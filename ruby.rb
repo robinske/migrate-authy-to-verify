@@ -6,6 +6,20 @@ require 'authy'
 Authy.api_key = ENV['AUTHY_API_KEY']
 Authy.api_uri = 'https://api.authy.com'
 
-verification = Authy::API.request_sms(:id => ENV['AUTHY_ID'])
 
-puts verification.message
+def send
+    verification = Authy::API.request_sms(:id => ENV['AUTHY_ID'])
+
+    puts verification.message
+end
+
+
+def check(token)
+    response = Authy::API.verify(:id => authy_id, :token => token)
+
+    if response.ok?
+        # correct token
+    else
+        # incorrect token
+    end
+end
