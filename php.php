@@ -18,7 +18,6 @@ $verify_service_sid = getenv("VERIFY_SERVICE_SID");
 # Must be in E.164 format: https://www.twilio.com/docs/glossary/what-e164
 $to_number = "+15017122661";
 
-
 function send() {
     $verification = $twilio->verify->v2->services($verify_service_sid)
                                    ->verifications
@@ -30,9 +29,9 @@ function send() {
 }
 
 function check($token) {
-    $verification_check = $twilio->verify->v2->services("VAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+    $verification_check = $twilio->verify->v2->services($verify_service_sid)
                                          ->verificationChecks
-                                         ->create($token,
-                                                  ["to" => $to_number]
-                                         );
+                                         ->create($token, ["to" => $to_number]);
+    
+    print($verification_check->status);
 }
