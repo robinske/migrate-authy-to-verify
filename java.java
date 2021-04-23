@@ -9,10 +9,11 @@ public class Example {
     public static final String API_KEY = "your_api_key";
     public static final String AUTHY_ID = "user's authy id";
 
-    AuthyApiClient client = new AuthyApiClient(API_KEY);
-
-    public static void send( String[] args ) throws Exception
+    public static void main( String[] args ) throws Exception
     {
+        AuthyApiClient client = new AuthyApiClient(API_KEY);
+
+        // Send verification
         Users users = client.getUsers();
         Hash response = users.requestSms(AUTHY_ID);
 
@@ -21,10 +22,8 @@ public class Example {
         } else {
             System.out.println(response.getError());
         }
-    }
 
-    public static void check( String[] args ) throws Exception
-    {
+        // Check verification
         Tokens tokens = client.getTokens();
         Token response = tokens.verify(AUTHY_ID, "1297431");
 
