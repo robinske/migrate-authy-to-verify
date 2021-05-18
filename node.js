@@ -1,17 +1,27 @@
-// Download the helper library from https://github.com/evilpacket/node-authy
+// Download the helper library from https://www.twilio.com/docs/node/install
+// Your Account Sid and Auth Token from twilio.com/console
+// and set the environment variables. See http://twil.io/secure
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = require("twilio")(accountSid, authToken);
 
-// Your API key from twilio.com/console/authy/applications
-// DANGER! This is insecure. See http://twil.io/secure
-var authy = require("authy")(process.env.AUTHY_API_KEY);
+// Create a Verify Service in the Console: https://www.twilio.com/console/verify/services
+const verifyServiceSid = process.env.VERIFY_SERVICE_SID;
+
+// Use this instead of the Authy ID.
+// Must be in E.164 format: https://www.twilio.com/docs/glossary/what-e164
+const toNumber = "+15017122661";
 
 function send() {
-  authy.request_sms(process.env.AUTHY_ID, function (err, res) {
-    console.log(res.message);
-  });
+  client.verify
+    .services(verifyServiceSid)
+    .verifications.create({ to: toNumber, channel: "sms" })
+    .then((verification) => console.log(verification.sid));
 }
 
 function check(token) {
-  authy.verify(process.env.AUTHY_ID, (token = token), function (err, res) {
-    console.log(res.message);
-  });
+  client.verify
+    .services(verifyServiceSid)
+    .verificationChecks.create({ to: toNumber, code: token })
+    .then((verification_check) => console.log(verification_check.status));
 }
