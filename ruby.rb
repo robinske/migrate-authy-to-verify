@@ -1,23 +1,38 @@
-# Download the helper library from https://github.com/twilio/authy-ruby
-require 'authy'
+# Download the helper library from https://www.twilio.com/docs/ruby/install
+require 'rubygems'
+require 'twilio-ruby'
 
-# Your API key from twilio.com/console/authy/applications
-# DANGER! This is insecure. See http://twil.io/secure
-Authy.api_key = ENV['AUTHY_API_KEY']
-Authy.api_uri = 'https://api.authy.com'
+# Your Account Sid and Auth Token from twilio.com/console
+# and set the environment variables. See http://twil.io/secure
+account_sid = ENV['TWILIO_ACCOUNT_SID']
+auth_token = ENV['TWILIO_AUTH_TOKEN']
+@client = Twilio::REST::Client.new(account_sid, auth_token)
+
+# Create a Verify Service in the Console: https://www.twilio.com/console/verify/services
+verify_service_sid = ENV['VERIFY_SERVICE_SID']
+
+# Use this instead of the Authy ID.
+# Must be in E.164 format: https://www.twilio.com/docs/glossary/what-e164
+to_number = '+15017122661'
 
 
 def send
-    verification = Authy::API.request_sms(:id => ENV['AUTHY_ID'])
+    verification = @client.verify
+        .services(verify_service_sid)
+        .verifications
+        .create(to: to_number, channel: 'sms')
 
-    puts verification.message
+    puts verification.sid
 end
 
 
 def check(token)
-    response = Authy::API.verify(:id => authy_id, :token => token)
+    verification_check = @client.verify
+        .services(verify_service_sid)
+        .verification_checks
+        .create(to: to_number, code: token)
 
-    if response.ok?
+    if verification_check.status == "approved"
         # correct token
     else
         # incorrect token
